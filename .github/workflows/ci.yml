@@ -24,7 +24,7 @@ jobs:
           path: "metabrainz.netplan"
 
       - name: Set up Python 3.
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: "3.x"
 
@@ -43,6 +43,16 @@ jobs:
       matrix:
         distro:
           - ubuntu2004
+        dependencies:
+          # Ubuntu 20.04
+          - python: 3.8.2
+            pip: ansible==2.9.6 jinja2==2.10.1 molecule[docker]==3.0.0 docker==4.1.0
+          # Ubuntu 22.04
+          - python: 3.10.4
+            pip: ansible==2.10.7 jinja2==3.0.3 molecule[docker]==3.0.0 docker==5.0.3
+          # latest
+          - python: 3.x
+            pip: ansible molecule[docker] docker
 
     steps:
       - name: Check out the codebase.
@@ -51,12 +61,12 @@ jobs:
           path: "metabrainz.netplan"
 
       - name: Set up Python 3.
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
-          python-version: "3.x"
+          python-version: ${{ matrix.dependencies.python }}
 
       - name: Install test dependencies.
-        run: pip3 install ansible molecule[docker] docker
+        run: pip install ${{ matrix.dependencies.pip }}
 
       - name: Run Molecule tests.
         run: molecule test
